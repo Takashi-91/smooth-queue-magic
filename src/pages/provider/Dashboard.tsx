@@ -29,6 +29,7 @@ const ProviderDashboard = () => {
     price: 0,
   });
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -41,6 +42,8 @@ const ProviderDashboard = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/provider/login");
+    } else {
+      setUserId(session.user.id);
     }
   };
 
@@ -65,10 +68,22 @@ const ProviderDashboard = () => {
 
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!userId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to create services",
+      });
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("services")
-        .insert([newService])
+        .insert([{
+          ...newService,
+          provider_id: userId
+        }])
         .select()
         .single();
 
