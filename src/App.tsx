@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/auth/signup" element={<SignUp />} />
           <Route path="/provider/dashboard" element={<ProviderDashboard />} />
           <Route path="/customer/check-in" element={<CustomerCheckIn />} />
+          <Route path="/customer/check-in/:providerId" element={<CustomerCheckIn />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

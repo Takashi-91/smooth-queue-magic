@@ -1,4 +1,6 @@
+
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +18,7 @@ interface Service {
   name: string;
   duration: number;
   price: number;
+  provider_id: string;
 }
 
 interface QueueItem {
@@ -27,6 +30,7 @@ interface QueueItem {
 }
 
 const CustomerCheckIn = () => {
+  const { providerId } = useParams();
   const [services, setServices] = useState<Service[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -37,7 +41,7 @@ const CustomerCheckIn = () => {
 
   useEffect(() => {
     fetchServices();
-  }, []);
+  }, [providerId]);
 
   // Subscribe to queue updates when customer ID is set
   useEffect(() => {
@@ -94,10 +98,17 @@ const CustomerCheckIn = () => {
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("services")
         .select("*")
         .order("created_at", { ascending: false });
+
+      // If providerId is specified, filter services for that provider
+      if (providerId) {
+        query = query.eq("provider_id", providerId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setServices(data || []);
@@ -124,6 +135,7 @@ const CustomerCheckIn = () => {
             customer_name: customerName,
             service_id: selectedService.id,
             status: "waiting",
+            booking_status: "pending",
           },
         ])
         .select()
@@ -157,7 +169,11 @@ const CustomerCheckIn = () => {
         <Card>
           <CardHeader>
             <CardTitle>Check-In</CardTitle>
-            <CardDescription>Select a service and enter your name to join the queue</CardDescription>
+            <CardDescription>
+              {providerId 
+                ? "Select a service to join the queue" 
+                : "Select a service from any provider to join the queue"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {queuePosition ? (
