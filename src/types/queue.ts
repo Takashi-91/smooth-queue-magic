@@ -14,3 +14,9 @@ export interface QueueItem {
   status: string;
   created_at: string;
 }
+
+export interface Provider {
+  id: string;
+  name: string;
+  created_at: string;
+}

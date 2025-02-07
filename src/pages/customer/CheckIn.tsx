@@ -14,9 +14,11 @@ import {
 } from "@/components/ui/card";
 import { Service } from "@/types/queue";
 import { useServices } from "@/hooks/useServices";
+import { useProvider } from "@/hooks/useProvider";
 import { useQueuePosition } from "@/hooks/useQueuePosition";
 import { ServiceCard } from "@/components/customer/ServiceCard";
 import { QueueStatus } from "@/components/customer/QueueStatus";
+import { Loader2 } from "lucide-react";
 
 const CustomerCheckIn = () => {
   const { providerId } = useParams();
@@ -27,6 +29,7 @@ const CustomerCheckIn = () => {
   const { toast } = useToast();
 
   const services = useServices(providerId);
+  const { provider, isLoading: isLoadingProvider } = useProvider(providerId);
   const queuePosition = useQueuePosition(customerId, selectedService?.id ?? null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,16 +70,39 @@ const CustomerCheckIn = () => {
     }
   };
 
+  if (isLoadingProvider) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!provider && !isLoadingProvider) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>Provider Not Found</CardTitle>
+              <CardDescription>
+                The provider you're looking for doesn't exist or has been removed.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Check-In</CardTitle>
+            <CardTitle>{provider?.name}</CardTitle>
             <CardDescription>
-              {providerId 
-                ? "Select a service to join the queue" 
-                : "Select a service from any provider to join the queue"}
+              Select a service to join the queue
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -116,7 +142,14 @@ const CustomerCheckIn = () => {
                   className="w-full"
                   disabled={!customerName || !selectedService || isSubmitting}
                 >
-                  {isSubmitting ? "Submitting..." : "Join Queue"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Join Queue"
+                  )}
                 </Button>
               </form>
             )}

@@ -9,22 +9,17 @@ export const useServices = (providerId: string | undefined) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!providerId) return;
     fetchServices();
   }, [providerId]);
 
   const fetchServices = async () => {
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from("services")
         .select("*")
+        .eq("provider_id", providerId)
         .order("created_at", { ascending: false });
-
-      // Only add the provider filter if providerId is provided and not the route parameter placeholder
-      if (providerId && providerId !== ":providerId") {
-        query = query.eq("provider_id", providerId);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
       setServices(data || []);
