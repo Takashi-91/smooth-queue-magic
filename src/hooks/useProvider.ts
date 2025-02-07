@@ -21,7 +21,7 @@ export const useProvider = (providerId: string | undefined) => {
           .from("providers")
           .select("*")
           .eq("id", providerId)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         setProvider(data);

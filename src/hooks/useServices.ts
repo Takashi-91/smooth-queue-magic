@@ -10,28 +10,29 @@ export const useServices = (providerId: string | undefined) => {
 
   useEffect(() => {
     if (!providerId) return;
+    
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("services")
+          .select("*")
+          .eq("provider_id", providerId)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        setServices(data || []);
+      } catch (error: any) {
+        console.error("Error fetching services:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch services",
+        });
+      }
+    };
+
     fetchServices();
-  }, [providerId]);
-
-  const fetchServices = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("provider_id", providerId)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setServices(data || []);
-    } catch (error: any) {
-      console.error("Error fetching services:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch services",
-      });
-    }
-  };
+  }, [providerId, toast]);
 
   return services;
 };
