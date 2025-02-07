@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Check, X } from "lucide-react";
 
 interface Service {
   id: number;
@@ -21,8 +22,18 @@ interface Service {
   price: number;
 }
 
+interface QueueItem {
+  id: number;
+  customer_name: string;
+  service_id: number;
+  booking_status: string;
+  created_at: string;
+  service: Service;
+}
+
 const ProviderDashboard = () => {
   const [services, setServices] = useState<Service[]>([]);
+  const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
   const [newService, setNewService] = useState({
     name: "",
     duration: 0,
@@ -36,7 +47,30 @@ const ProviderDashboard = () => {
   useEffect(() => {
     checkAuth();
     fetchServices();
+    fetchQueueItems();
+    subscribeToQueueUpdates();
   }, []);
+
+  const subscribeToQueueUpdates = () => {
+    const channel = supabase
+      .channel('queue-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'queue',
+        },
+        () => {
+          fetchQueueItems();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -62,6 +96,28 @@ const ProviderDashboard = () => {
         variant: "destructive",
         title: "Error",
         description: "Failed to fetch services",
+      });
+    }
+  };
+
+  const fetchQueueItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("queue")
+        .select(`
+          *,
+          service:services(*)
+        `)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setQueueItems(data || []);
+    } catch (error: any) {
+      console.error("Error fetching queue items:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch queue items",
       });
     }
   };
@@ -163,6 +219,32 @@ const ProviderDashboard = () => {
     }
   };
 
+  const handleBookingResponse = async (queueId: number, status: 'approved' | 'declined') => {
+    try {
+      const { error } = await supabase
+        .from("queue")
+        .update({
+          booking_status: status,
+          provider_response_at: new Date().toISOString(),
+        })
+        .eq("id", queueId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Booking ${status} successfully`,
+      });
+    } catch (error: any) {
+      console.error("Error updating booking:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to ${status} booking`,
+      });
+    }
+  };
+
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -187,6 +269,58 @@ const ProviderDashboard = () => {
             Logout
           </Button>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Booking Requests</CardTitle>
+            <CardDescription>Manage customer booking requests</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {queueItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div className="space-y-1">
+                    <h3 className="font-medium">{item.customer_name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Service: {item.service?.name} • Status: {item.booking_status}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Requested at: {new Date(item.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  {item.booking_status === 'pending' && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleBookingResponse(item.id, 'approved')}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleBookingResponse(item.id, 'declined')}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Decline
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {queueItems.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No booking requests at the moment.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

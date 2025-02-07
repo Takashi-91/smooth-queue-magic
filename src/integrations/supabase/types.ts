@@ -11,23 +11,29 @@ export type Database = {
     Tables: {
       queue: {
         Row: {
+          booking_status: string
           created_at: string
           customer_name: string
           id: number
+          provider_response_at: string | null
           service_id: number | null
           status: string
         }
         Insert: {
+          booking_status?: string
           created_at?: string
           customer_name: string
           id?: number
+          provider_response_at?: string | null
           service_id?: number | null
           status?: string
         }
         Update: {
+          booking_status?: string
           created_at?: string
           customer_name?: string
           id?: number
+          provider_response_at?: string | null
           service_id?: number | null
           status?: string
         }
