@@ -19,7 +19,8 @@ export const useServices = (providerId: string | undefined) => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (providerId) {
+      // Only add the provider filter if providerId is provided and not the route parameter placeholder
+      if (providerId && providerId !== ":providerId") {
         query = query.eq("provider_id", providerId);
       }
 
