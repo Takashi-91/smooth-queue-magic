@@ -15,9 +15,8 @@ export const useServices = () => {
           .from("services")
           .select(`
             *,
-            provider:providers(name)
+            provider:providers(*)
           `)
-          .eq('providers.is_public', true)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
