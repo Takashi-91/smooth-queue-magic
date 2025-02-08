@@ -13,18 +13,20 @@ export const useServices = () => {
       try {
         const { data, error } = await supabase
           .from("services")
-          .select(`
-            *,
-            provider:providers(*)
-          `)
+          .select("*, provider:providers(*)")
           .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        // Transform the data to match the Service type
-        const transformedServices: Service[] = (data || []).map(service => ({
-          ...service,
-          provider: service.provider ? { name: service.provider.name } : undefined
+        const transformedServices: Service[] = data.map((service: any) => ({
+          id: service.id,
+          name: service.name,
+          duration: service.duration,
+          price: service.price,
+          provider_id: service.provider_id,
+          provider: service.provider ? {
+            name: service.provider.name
+          } : undefined
         }));
 
         setServices(transformedServices);
