@@ -24,7 +24,6 @@ const App = () => (
           <Route path="/provider/login" element={<ProviderLogin />} />
           <Route path="/auth/signup" element={<SignUp />} />
           <Route path="/provider/dashboard" element={<ProviderDashboard />} />
-          <Route path="/customer/check-in" element={<CustomerCheckIn />} />
           <Route path="/customer/check-in/:providerId" element={<CustomerCheckIn />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
