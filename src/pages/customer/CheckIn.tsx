@@ -14,6 +14,7 @@ import {
 import { Service } from "@/types/queue";
 import { useServices } from "@/hooks/useServices";
 import { QueueStatus } from "@/components/customer/QueueStatus";
+import { ServiceCard } from "@/components/customer/ServiceCard";
 import { Loader2 } from "lucide-react";
 
 const CustomerCheckIn = () => {

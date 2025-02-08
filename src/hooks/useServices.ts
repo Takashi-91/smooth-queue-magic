@@ -21,7 +21,14 @@ export const useServices = () => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setServices(data || []);
+
+        // Transform the data to match the Service type
+        const transformedServices: Service[] = (data || []).map(service => ({
+          ...service,
+          provider: service.provider ? { name: service.provider.name } : undefined
+        }));
+
+        setServices(transformedServices);
       } catch (error: any) {
         console.error("Error fetching services:", error);
         toast({
