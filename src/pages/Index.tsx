@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,19 +22,19 @@ const Index = () => {
           <p className="text-lg md:text-xl text-slate-600 mb-8">
             Streamline your barbershop or salon with our efficient queue management system
           </p>
-          <div className="space-x-4 animate-slideUp">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-slideUp">
             <Button
               onClick={() => navigate("/provider/login")}
-              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 rounded-lg text-lg transition-all duration-300"
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 rounded-lg text-lg transition-all duration-300 w-full sm:w-auto"
             >
               Service Provider Login
             </Button>
             <Button
-              onClick={() => navigate("/customer/check-in")}
+              onClick={() => navigate("/customer/services")}
               variant="outline"
-              className="px-8 py-6 rounded-lg text-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300"
+              className="px-8 py-6 rounded-lg text-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300 w-full sm:w-auto"
             >
-              Customer Check-in
+              Browse All Services
             </Button>
           </div>
         </div>
