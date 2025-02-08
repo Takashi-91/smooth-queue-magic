@@ -5,6 +5,9 @@ export interface Service {
   duration: number;
   price: number;
   provider_id: string;
+  provider?: {
+    name: string;
+  };
 }
 
 export interface QueueItem {

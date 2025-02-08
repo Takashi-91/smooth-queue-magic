@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -14,23 +13,17 @@ import {
 } from "@/components/ui/card";
 import { Service } from "@/types/queue";
 import { useServices } from "@/hooks/useServices";
-import { useProvider } from "@/hooks/useProvider";
-import { useQueuePosition } from "@/hooks/useQueuePosition";
-import { ServiceCard } from "@/components/customer/ServiceCard";
 import { QueueStatus } from "@/components/customer/QueueStatus";
 import { Loader2 } from "lucide-react";
 
 const CustomerCheckIn = () => {
-  const { providerId } = useParams();
   const [customerName, setCustomerName] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const { toast } = useToast();
 
-  const services = useServices(providerId);
-  const { provider, isLoading: isLoadingProvider } = useProvider(providerId);
-  const queuePosition = useQueuePosition(customerId, selectedService?.id ?? null);
+  const services = useServices();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,45 +63,20 @@ const CustomerCheckIn = () => {
     }
   };
 
-  if (isLoadingProvider) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!provider && !isLoadingProvider) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>Provider Not Found</CardTitle>
-              <CardDescription>
-                The provider you're looking for doesn't exist or has been removed.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>{provider?.name}</CardTitle>
+            <CardTitle>Available Services</CardTitle>
             <CardDescription>
               Select a service to join the queue
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {queuePosition && selectedService ? (
+            {customerId && selectedService ? (
               <QueueStatus 
-                position={queuePosition} 
+                position={1} 
                 selectedService={selectedService} 
               />
             ) : (

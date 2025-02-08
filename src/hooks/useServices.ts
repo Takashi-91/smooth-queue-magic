@@ -4,32 +4,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { Service } from "@/types/queue";
 import { useToast } from "@/hooks/use-toast";
 
-export const useServices = (providerId: string | undefined) => {
+export const useServices = () => {
   const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!providerId) return;
-
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(providerId)) {
-      console.error("Invalid UUID format for providerId");
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Invalid provider ID format",
-      });
-      return;
-    }
-
     const fetchServices = async () => {
       try {
         const { data, error } = await supabase
           .from("services")
-          .select("*")
-          .eq("provider_id", providerId)
-          .order("created_at", { ascending: false });
+          .select(`
+            *,
+            provider:providers(name)
+          `)
+          .eq('providers.is_public', true)
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
         setServices(data || []);
@@ -44,7 +33,7 @@ export const useServices = (providerId: string | undefined) => {
     };
 
     fetchServices();
-  }, [providerId, toast]);
+  }, [toast]);
 
   return services;
 };

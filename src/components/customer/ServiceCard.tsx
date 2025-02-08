@@ -22,6 +22,11 @@ export const ServiceCard = ({ service, isSelected, onSelect }: ServiceCardProps)
       <div className="text-sm text-muted-foreground">
         {service.duration} minutes • R{service.price.toFixed(2)}
       </div>
+      {service.provider && (
+        <div className="text-sm text-muted-foreground mt-1">
+          Provided by: {service.provider.name}
+        </div>
+      )}
     </button>
   );
 };
