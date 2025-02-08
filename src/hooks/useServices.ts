@@ -13,7 +13,13 @@ export const useServices = () => {
       try {
         const { data, error } = await supabase
           .from("services")
-          .select("*, provider:providers(*)")
+          .select(`
+            *,
+            provider:providers(
+              id,
+              name
+            )
+          `)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
