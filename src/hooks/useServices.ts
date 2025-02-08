@@ -10,7 +10,19 @@ export const useServices = (providerId: string | undefined) => {
 
   useEffect(() => {
     if (!providerId) return;
-    
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(providerId)) {
+      console.error("Invalid UUID format for providerId");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Invalid provider ID format",
+      });
+      return;
+    }
+
     const fetchServices = async () => {
       try {
         const { data, error } = await supabase
