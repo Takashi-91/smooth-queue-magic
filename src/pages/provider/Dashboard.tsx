@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Pencil, Trash2, Plus, Check, X } from "lucide-react";
+import { Pencil, Trash2, Plus, Check, X, Link } from "lucide-react";
 
 interface Service {
   id: number;
@@ -260,14 +259,40 @@ const ProviderDashboard = () => {
     }
   };
 
+  const handleCopyCheckInLink = async () => {
+    if (!userId) return;
+    
+    const checkInUrl = `${window.location.origin}/customer/check-in/${userId}`;
+    try {
+      await navigator.clipboard.writeText(checkInUrl);
+      toast({
+        title: "Success",
+        description: "Check-in link copied to clipboard",
+      });
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to copy link to clipboard",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Provider Dashboard</h1>
-          <Button variant="outline" onClick={handleLogout}>
-            Logout
-          </Button>
+          <div className="flex gap-4">
+            <Button variant="outline" onClick={handleCopyCheckInLink}>
+              <Link className="h-4 w-4 mr-2" />
+              Copy Check-in Link
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Card>
