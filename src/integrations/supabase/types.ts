@@ -93,7 +93,15 @@ export type Database = {
           price?: number
           provider_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
