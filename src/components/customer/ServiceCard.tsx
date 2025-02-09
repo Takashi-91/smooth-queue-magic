@@ -22,8 +22,8 @@ export const ServiceCard = ({ service, isSelected, onSelect }: ServiceCardProps)
         isSelected && "border-primary bg-primary/5"
       )}
     >
-      <div className="relative z-10">
-        <h3 className="text-xl font-semibold mb-2">{service.name}</h3>
+      <div className="relative z-10 space-y-4">
+        <h3 className="text-xl font-semibold">{service.name}</h3>
         
         <div className="space-y-3">
           <div className="flex items-center text-muted-foreground">
@@ -35,13 +35,13 @@ export const ServiceCard = ({ service, isSelected, onSelect }: ServiceCardProps)
             <CreditCard className="h-4 w-4 mr-2" />
             <span>R{service.price.toFixed(2)}</span>
           </div>
-
-          {service.provider && (
-            <div className="text-sm text-muted-foreground mt-1">
-              Provided by {service.provider.name}
-            </div>
-          )}
         </div>
+
+        {service.provider && (
+          <div className="text-sm text-muted-foreground mt-2 border-t pt-2">
+            Provided by {service.provider.name}
+          </div>
+        )}
       </div>
       
       <div className={cn(
