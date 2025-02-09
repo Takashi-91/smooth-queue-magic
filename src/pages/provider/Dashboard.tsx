@@ -262,7 +262,7 @@ const ProviderDashboard = () => {
   const handleCopyCheckInLink = async () => {
     if (!userId) return;
     
-    const checkInUrl = `${window.location.origin}/customer/check-in/${userId}`;
+    const checkInUrl = `${window.location.origin}/customer/services/${userId}`;
     try {
       await navigator.clipboard.writeText(checkInUrl);
       toast({

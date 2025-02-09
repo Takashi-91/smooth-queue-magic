@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -18,13 +19,14 @@ import { ServiceCard } from "@/components/customer/ServiceCard";
 import { Loader2 } from "lucide-react";
 
 const CustomerCheckIn = () => {
+  const { providerId } = useParams();
   const [customerName, setCustomerName] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const { toast } = useToast();
 
-  const services = useServices();
+  const services = useServices(providerId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

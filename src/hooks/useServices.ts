@@ -4,17 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { Service } from "@/types/queue";
 import { useToast } from "@/hooks/use-toast";
 
-export const useServices = () => {
+export const useServices = (providerId?: string) => {
   const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from("services")
           .select("*, providers(id, name)")
           .order('created_at', { ascending: false });
+
+        if (providerId) {
+          query = query.eq('provider_id', providerId);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -41,7 +47,7 @@ export const useServices = () => {
     };
 
     fetchServices();
-  }, [toast]);
+  }, [toast, providerId]);
 
   return services;
 };
