@@ -16,7 +16,7 @@ import { Service } from "@/types/queue";
 import { useServices } from "@/hooks/useServices";
 import { QueueStatus } from "@/components/customer/QueueStatus";
 import { ServiceCard } from "@/components/customer/ServiceCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const CustomerCheckIn = () => {
   const { providerId } = useParams();
@@ -24,9 +24,20 @@ const CustomerCheckIn = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState<number | null>(null);
+  const [step, setStep] = useState<"select-service" | "enter-details">("select-service");
   const { toast } = useToast();
 
   const services = useServices(providerId);
+
+  const handleServiceSelect = (service: Service) => {
+    setSelectedService(service);
+    setStep("enter-details");
+  };
+
+  const handleBack = () => {
+    setStep("select-service");
+    setSelectedService(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,24 +77,58 @@ const CustomerCheckIn = () => {
     }
   };
 
+  if (customerId && selectedService) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardContent className="pt-6">
+              <QueueStatus position={1} selectedService={selectedService} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-2xl mx-auto">
-        <Card>
+      <div className="max-w-4xl mx-auto">
+        <Card className="border-none shadow-lg">
           <CardHeader>
-            <CardTitle>Available Services</CardTitle>
+            {step === "enter-details" && (
+              <Button
+                variant="ghost"
+                className="w-fit -ml-2 mb-2"
+                onClick={handleBack}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Services
+              </Button>
+            )}
+            <CardTitle className="text-3xl font-bold">
+              {step === "select-service" ? "Available Services" : "Complete Booking"}
+            </CardTitle>
             <CardDescription>
-              Select a service to join the queue
+              {step === "select-service"
+                ? "Select a service to begin booking"
+                : "Enter your details to confirm your booking"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {customerId && selectedService ? (
-              <QueueStatus 
-                position={1} 
-                selectedService={selectedService} 
-              />
+            {step === "select-service" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {services.map((service) => (
+                  <ServiceCard
+                    key={service.id}
+                    service={service}
+                    isSelected={selectedService?.id === service.id}
+                    onSelect={handleServiceSelect}
+                  />
+                ))}
+              </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Your Name</label>
                   <Input
@@ -94,24 +139,10 @@ const CustomerCheckIn = () => {
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-medium">Select a Service</label>
-                  <div className="grid gap-4">
-                    {services.map((service) => (
-                      <ServiceCard
-                        key={service.id}
-                        service={service}
-                        isSelected={selectedService?.id === service.id}
-                        onSelect={setSelectedService}
-                      />
-                    ))}
-                  </div>
-                </div>
-
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={!customerName || !selectedService || isSubmitting}
+                  disabled={!customerName || isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
@@ -119,7 +150,7 @@ const CustomerCheckIn = () => {
                       Submitting...
                     </>
                   ) : (
-                    "Join Queue"
+                    "Confirm Booking"
                   )}
                 </Button>
               </form>
