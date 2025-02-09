@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +47,16 @@ const ServicesManagement = ({ userId, services, setServices }: ServicesManagemen
     }
 
     try {
+      const { data: providerData, error: providerError } = await supabase
+        .from("providers")
+        .select("id")
+        .eq("id", userId)
+        .single();
+
+      if (providerError) {
+        throw new Error("Provider not found. Please try logging out and back in.");
+      }
+
       const { data, error } = await supabase
         .from("services")
         .insert([{
@@ -70,7 +79,7 @@ const ServicesManagement = ({ userId, services, setServices }: ServicesManagemen
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create service",
+        description: error.message || "Failed to create service",
       });
     }
   };
