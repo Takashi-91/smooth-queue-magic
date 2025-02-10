@@ -13,7 +13,7 @@ export const useServices = (providerId?: string) => {
       try {
         let query = supabase
           .from("services")
-          .select("*, providers(id, name)")
+          .select("*, providers(id, name, email)")
           .order('created_at', { ascending: false });
 
         if (providerId) {
@@ -31,7 +31,8 @@ export const useServices = (providerId?: string) => {
           price: service.price,
           provider_id: service.provider_id,
           provider: service.providers ? {
-            name: service.providers.name
+            name: service.providers.name,
+            email: service.providers.email
           } : undefined
         }));
 

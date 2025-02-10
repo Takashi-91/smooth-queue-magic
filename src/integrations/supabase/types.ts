@@ -12,18 +12,21 @@ export type Database = {
       providers: {
         Row: {
           created_at: string
+          email: string
           id: string
           is_public: boolean | null
           name: string
         }
         Insert: {
           created_at?: string
+          email: string
           id?: string
           is_public?: boolean | null
           name: string
         }
         Update: {
           created_at?: string
+          email?: string
           id?: string
           is_public?: boolean | null
           name?: string

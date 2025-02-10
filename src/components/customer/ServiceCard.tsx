@@ -1,6 +1,6 @@
 
 import { Service } from "@/types/queue";
-import { Clock, CreditCard } from "lucide-react";
+import { Clock, CreditCard, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ServiceCardProps {
@@ -37,8 +37,14 @@ export const ServiceCard = ({ service, isSelected, onSelect }: ServiceCardProps)
           </div>
 
           {service.provider && (
-            <div className="text-sm text-muted-foreground mt-1">
-              Provided by {service.provider.name}
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">
+                Provided by {service.provider.name}
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 mr-2" />
+                <span>{service.provider.email}</span>
+              </div>
             </div>
           )}
         </div>

@@ -7,6 +7,7 @@ export interface Service {
   provider_id: string;
   provider?: {
     name: string;
+    email: string;
   };
 }
 
@@ -21,5 +22,6 @@ export interface QueueItem {
 export interface Provider {
   id: string;
   name: string;
+  email: string;
   created_at: string;
 }
