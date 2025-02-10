@@ -75,10 +75,13 @@ const ProviderDashboard = () => {
   };
 
   const fetchServices = async () => {
+    if (!userId) return;
+
     try {
       const { data, error } = await supabase
         .from("services")
         .select("*")
+        .eq('provider_id', userId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
