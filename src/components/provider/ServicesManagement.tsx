@@ -47,16 +47,6 @@ const ServicesManagement = ({ userId, services, setServices }: ServicesManagemen
     }
 
     try {
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
-        .select("id")
-        .eq("id", userId)
-        .single();
-
-      if (providerError) {
-        throw new Error("Provider not found. Please try logging out and back in.");
-      }
-
       const { data, error } = await supabase
         .from("services")
         .insert([{

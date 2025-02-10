@@ -33,10 +33,15 @@ const ProviderDashboard = () => {
 
   useEffect(() => {
     checkAuth();
-    fetchServices();
-    fetchQueueItems();
-    subscribeToQueueUpdates();
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchServices();
+      fetchQueueItems();
+      subscribeToQueueUpdates();
+    }
+  }, [userId]);
 
   const subscribeToQueueUpdates = () => {
     const channel = supabase
@@ -47,6 +52,7 @@ const ProviderDashboard = () => {
           event: '*',
           schema: 'public',
           table: 'queue',
+          filter: `service->provider_id=eq.${userId}`
         },
         () => {
           fetchQueueItems();
@@ -88,6 +94,8 @@ const ProviderDashboard = () => {
   };
 
   const fetchQueueItems = async () => {
+    if (!userId) return;
+
     try {
       const { data, error } = await supabase
         .from("queue")
@@ -95,6 +103,7 @@ const ProviderDashboard = () => {
           *,
           service:services(*)
         `)
+        .eq('service.provider_id', userId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
