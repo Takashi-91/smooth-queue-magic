@@ -51,8 +51,7 @@ const ProviderDashboard = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'queue',
-          filter: `service->provider_id=eq.${userId}`
+          table: 'queue'
         },
         () => {
           fetchQueueItems();
@@ -75,13 +74,10 @@ const ProviderDashboard = () => {
   };
 
   const fetchServices = async () => {
-    if (!userId) return;
-
     try {
       const { data, error } = await supabase
         .from("services")
         .select("*")
-        .eq('provider_id', userId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -97,8 +93,6 @@ const ProviderDashboard = () => {
   };
 
   const fetchQueueItems = async () => {
-    if (!userId) return;
-
     try {
       const { data, error } = await supabase
         .from("queue")
@@ -106,7 +100,6 @@ const ProviderDashboard = () => {
           *,
           service:services(*)
         `)
-        .eq('service.provider_id', userId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
