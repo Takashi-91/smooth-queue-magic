@@ -1,27 +1,27 @@
 {
   "rewrites": [
     {
-      "src": "/provider/login",
+      "source": "/provider/login",
       "destination": "/"
     },
     {
-      "src": "/auth/signup",
+      "source": "/auth/signup",
       "destination": "/"
     },
     {
-      "src": "/provider/dashboard",
+      "source": "/provider/dashboard",
       "destination": "/"
     },
     {
-      "src": "/customer/services",
+      "source": "/customer/services",
       "destination": "/"
     },
     {
-      "src": "/customer/services/:providerId",
+      "source": "/customer/services/:providerId",
       "destination": "/"
     },
     {
-      "src": "/*",
+      "source": "/*",
       "destination": "/"
     }
   ]
