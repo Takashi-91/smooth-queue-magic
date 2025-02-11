@@ -39,7 +39,15 @@ const BookingRequests = ({ queueItems }: BookingRequestsProps) => {
         })
         .eq("id", queueId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating booking:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: `Failed to ${status} booking. ${error.message}`,
+        });
+        return;
+      }
 
       toast({
         title: "Success",
