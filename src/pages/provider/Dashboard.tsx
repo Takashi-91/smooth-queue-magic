@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,22 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "lucide-react";
 import ServicesManagement from "@/components/provider/ServicesManagement";
 import BookingRequests from "@/components/provider/BookingRequests";
-
-interface Service {
-  id: number;
-  name: string;
-  duration: number;
-  price: number;
-}
-
-interface QueueItem {
-  id: number;
-  customer_name: string;
-  service_id: number;
-  booking_status: string;
-  created_at: string;
-  service: Service;
-}
+import { Service, QueueItem } from "@/types/queue";
 
 const ProviderDashboard = () => {
   const [services, setServices] = useState<Service[]>([]);
