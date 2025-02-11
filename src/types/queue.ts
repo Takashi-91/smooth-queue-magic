@@ -17,6 +17,12 @@ export interface QueueItem {
   service_id: number;
   status: string;
   created_at: string;
+  reference_number: string;
+  booking_status: string;
+  provider_response_at?: string | null;
+  service?: {
+    name: string;
+  };
 }
 
 export interface Provider {
@@ -25,3 +31,4 @@ export interface Provider {
   email: string;
   created_at: string;
 }
+
