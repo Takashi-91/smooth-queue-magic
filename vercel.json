@@ -1,0 +1,11 @@
+{
+    "rewrites": [
+      { "source": "/provider/login", "destination": "/index.html" },
+      { "source": "/auth/signup", "destination": "/index.html" },
+      { "source": "/provider/dashboard", "destination": "/index.html" },
+      { "source": "/customer/services", "destination": "/index.html" },
+      { "source": "/customer/services/:providerId", "destination": "/index.html" },
+      { "source": "/*", "destination": "/index.html" }
+    ]
+  }
+  
