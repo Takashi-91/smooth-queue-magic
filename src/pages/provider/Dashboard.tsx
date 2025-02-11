@@ -52,7 +52,6 @@ const ProviderDashboard = () => {
           event: '*',
           schema: 'public',
           table: 'queue',
-          filter: `service->provider_id=eq.${userId}`
         },
         () => {
           fetchQueueItems();
@@ -104,7 +103,7 @@ const ProviderDashboard = () => {
         .from("queue")
         .select(`
           *,
-          service:services(*)
+          service:services!inner(*)
         `)
         .eq('service.provider_id', userId)
         .order("created_at", { ascending: true });
