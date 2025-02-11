@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -16,9 +16,10 @@ import { Service } from "@/types/queue";
 import { useServices } from "@/hooks/useServices";
 import { QueueStatus } from "@/components/customer/QueueStatus";
 import { ServiceCard } from "@/components/customer/ServiceCard";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Copy, ArrowRight, Check } from "lucide-react";
 
 const CustomerCheckIn = () => {
+  const navigate = useNavigate();
   const { providerId } = useParams();
   const [customerName, setCustomerName] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -26,6 +27,7 @@ const CustomerCheckIn = () => {
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [referenceNumber, setReferenceNumber] = useState<string | null>(null);
   const [step, setStep] = useState<"select-service" | "enter-details">("select-service");
+  const [isReferenceCopied, setIsReferenceCopied] = useState(false);
   const { toast } = useToast();
 
   const services = useServices(providerId);
@@ -38,6 +40,30 @@ const CustomerCheckIn = () => {
   const handleBack = () => {
     setStep("select-service");
     setSelectedService(null);
+  };
+
+  const handleCopyReference = async () => {
+    if (!referenceNumber) return;
+    
+    try {
+      await navigator.clipboard.writeText(referenceNumber);
+      setIsReferenceCopied(true);
+      toast({
+        title: "Success",
+        description: "Reference number copied to clipboard",
+      });
+    } catch (error) {
+      console.error('Failed to copy reference:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to copy reference number",
+      });
+    }
+  };
+
+  const handleCheckStatus = () => {
+    navigate('/', { replace: true });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +116,45 @@ const CustomerCheckIn = () => {
                 selectedService={selectedService}
                 referenceNumber={referenceNumber}
               />
+              <div className="space-y-4 mt-6">
+                <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Your reference number:</p>
+                    <p className="font-mono text-lg">{referenceNumber}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyReference}
+                    className="min-w-[100px]"
+                  >
+                    {isReferenceCopied ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <Button
+                  onClick={handleCheckStatus}
+                  disabled={!isReferenceCopied}
+                  className="w-full"
+                >
+                  Check Booking Status
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                {!isReferenceCopied && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    Please copy your reference number before proceeding
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
