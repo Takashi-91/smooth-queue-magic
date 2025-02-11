@@ -1,28 +1,28 @@
 {
   "rewrites": [
     {
-      "source": "/provider/login",
-      "destination": "/index.html"
+      "src": "/provider/login",
+      "destination": "/"
     },
     {
-      "source": "/auth/signup",
-      "destination": "/index.html"
+      "src": "/auth/signup",
+      "destination": "/"
     },
     {
-      "source": "/provider/dashboard",
-      "destination": "/index.html"
+      "src": "/provider/dashboard",
+      "destination": "/"
     },
     {
-      "source": "/customer/services",
-      "destination": "/index.html"
+      "src": "/customer/services",
+      "destination": "/"
     },
     {
-      "source": "/customer/services/:providerId",
-      "destination": "/index.html"
+      "src": "/customer/services/:providerId",
+      "destination": "/"
     },
     {
-      "source": "/*",
-      "destination": "/index.html"
+      "src": "/*",
+      "destination": "/"
     }
   ]
 }
