@@ -17,6 +17,7 @@ interface QueueItem {
   service_id: number;
   booking_status: string;
   created_at: string;
+  reference_number: string;
   service: {
     name: string;
   };
@@ -82,7 +83,7 @@ const BookingRequests = ({ queueItems }: BookingRequestsProps) => {
                   Service: {item.service?.name} • Status: {item.booking_status}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Requested at: {new Date(item.created_at).toLocaleString()}
+                  Ref: {item.reference_number} • Requested at: {new Date(item.created_at).toLocaleString()}
                 </p>
               </div>
               {item.booking_status === 'pending' && (

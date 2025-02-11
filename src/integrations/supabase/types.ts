@@ -40,6 +40,7 @@ export type Database = {
           customer_name: string
           id: number
           provider_response_at: string | null
+          reference_number: string
           service_id: number | null
           status: string
         }
@@ -49,6 +50,7 @@ export type Database = {
           customer_name: string
           id?: number
           provider_response_at?: string | null
+          reference_number?: string
           service_id?: number | null
           status?: string
         }
@@ -58,6 +60,7 @@ export type Database = {
           customer_name?: string
           id?: number
           provider_response_at?: string | null
+          reference_number?: string
           service_id?: number | null
           status?: string
         }

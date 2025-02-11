@@ -24,6 +24,7 @@ const CustomerCheckIn = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState<number | null>(null);
+  const [referenceNumber, setReferenceNumber] = useState<string | null>(null);
   const [step, setStep] = useState<"select-service" | "enter-details">("select-service");
   const { toast } = useToast();
 
@@ -55,12 +56,13 @@ const CustomerCheckIn = () => {
             booking_status: "pending",
           },
         ])
-        .select()
+        .select("*, reference_number")
         .single();
 
       if (error) throw error;
 
       setCustomerId(data.id);
+      setReferenceNumber(data.reference_number);
       toast({
         title: "Success",
         description: "You've been added to the queue",
@@ -83,7 +85,11 @@ const CustomerCheckIn = () => {
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardContent className="pt-6">
-              <QueueStatus position={1} selectedService={selectedService} />
+              <QueueStatus 
+                position={1} 
+                selectedService={selectedService}
+                referenceNumber={referenceNumber}
+              />
             </CardContent>
           </Card>
         </div>
