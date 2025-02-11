@@ -17,11 +17,11 @@
       "destination": "/"
     },
     {
-      "source": "/customer/services/:providerId",
+      "source": "/customer/services/((?:[^/]+?))",
       "destination": "/"
     },
     {
-      "source": "/*",
+      "source": "/((?:[^/]+?))",
       "destination": "/"
     }
   ]
