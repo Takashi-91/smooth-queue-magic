@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,16 +7,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { QueueStatus } from "@/components/customer/QueueStatus";
 import { Service } from "@/types/queue";
 
+interface BookingDetails {
+  position: number;
+  service: Service;
+  referenceNumber: string;
+  status: 'waiting' | 'served' | 'removed';
+  servedAt?: string;
+  removedAt?: string;
+}
+
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [referenceNumber, setReferenceNumber] = useState("");
   const [isChecking, setIsChecking] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<{
-    position: number;
-    service: Service;
-    referenceNumber: string;
-  } | null>(null);
+  const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
 
   const checkStatus = async () => {
     if (!referenceNumber.trim()) {
@@ -30,6 +34,7 @@ const Index = () => {
     }
 
     setIsChecking(true);
+
     try {
       // First, get the booking details
       const { data: queueData, error: queueError } = await supabase
@@ -58,12 +63,37 @@ const Index = () => {
         return;
       }
 
-      // Get the position in queue
+      // Check if customer has been served or removed
+      if (queueData.served_at) {
+        setBookingDetails({
+          position: -1,
+          service: queueData.service,
+          referenceNumber: queueData.reference_number,
+          status: 'served',
+          servedAt: queueData.served_at
+        });
+        return;
+      }
+
+      if (queueData.removed_at) {
+        setBookingDetails({
+          position: -1,
+          service: queueData.service,
+          referenceNumber: queueData.reference_number,
+          status: 'removed',
+          removedAt: queueData.removed_at
+        });
+        return;
+      }
+
+      // Get the position in queue only if customer is still waiting
       const { data: queueItems } = await supabase
         .from("queue")
         .select("*")
         .eq("service_id", queueData.service_id)
         .eq("status", "waiting")
+        .is("served_at", null)
+        .is("removed_at", null)
         .order("created_at", { ascending: true });
 
       const position = queueItems?.findIndex(
@@ -74,6 +104,7 @@ const Index = () => {
         position: position || 0,
         service: queueData.service,
         referenceNumber: queueData.reference_number,
+        status: 'waiting'
       });
 
     } catch (error) {
@@ -89,70 +120,77 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary to-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-3xl mx-auto text-center animate-fadeIn">
-          <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6">
-            Queue Management Made Simple
-          </h1>
-          <p className="text-lg md:text-xl text-slate-600 mb-8">
-            Streamline your barbershop or salon with our efficient queue management system
-          </p>
+    
+<div className="min-h-screen bg-cover bg-center relative" style={{ backgroundImage: "url(/Land.jpeg)" }}>
+  {/* Dark overlay behind content */}
+  <div className="absolute inset-0 bg-black bg-opacity-60"></div>
 
-          {!bookingDetails ? (
-            <div className="max-w-md mx-auto mb-8 p-6 bg-white rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4">Check Booking Status</h2>
-              <div className="flex gap-2">
-                <Input
-                  value={referenceNumber}
-                  onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="Enter reference number"
-                  className="flex-1"
-                />
-                <Button 
-                  onClick={checkStatus}
-                  disabled={isChecking}
-                >
-                  {isChecking ? "Checking..." : "Check"}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="max-w-md mx-auto mb-8">
-              <QueueStatus
-                position={bookingDetails.position}
-                selectedService={bookingDetails.service}
-                referenceNumber={bookingDetails.referenceNumber}
-              />
-              <Button
-                variant="outline"
-                onClick={() => setBookingDetails(null)}
-                className="w-full mt-4"
-              >
-                Check Another Booking
-              </Button>
-            </div>
-          )}
+  {/* Content wrapper to ensure readability */}
+  <div className="relative z-10 flex flex-col justify-center items-center min-h-screen px-4">
+    <div className="max-w-3xl text-center animate-fadeIn">
+      <h1 className="text-4xl md:text-6xl font-bold text-white">
+        Hairhub Queue Manager
+      </h1>
+      <p className="text-lg md:text-xl text-white mb-8">
+        Streamline your barbershop or salon with our efficient queue management system
+      </p>
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-slideUp">
-            <Button
-              onClick={() => navigate("/provider/login")}
-              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 rounded-lg text-lg transition-all duration-300 w-full sm:w-auto"
+      {!bookingDetails ? (
+        <div className="max-w-md mx-auto mb-8 p-6 bg-white bg-opacity-90 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Check Booking Status</h2>
+          <div className="flex gap-2">
+            <Input
+              value={referenceNumber}
+              onChange={(e) => setReferenceNumber(e.target.value)}
+              placeholder="Enter reference number"
+              className="flex-1"
+            />
+            <Button 
+              onClick={checkStatus}
+              disabled={isChecking}
             >
-              Service Provider Login
-            </Button>
-            <Button
-              onClick={() => navigate("/customer/services")}
-              variant="outline"
-              className="px-8 py-6 rounded-lg text-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300 w-full sm:w-auto"
-            >
-              Browse All Services
+              {isChecking ? "Checking..." : "Check"}
             </Button>
           </div>
         </div>
+      ) : (
+        <div className="max-w-md mx-auto mb-8 p-6 bg-white bg-opacity-90 rounded-lg shadow-lg">
+          <QueueStatus
+            position={bookingDetails.position}
+            selectedService={bookingDetails.service}
+            referenceNumber={bookingDetails.referenceNumber}
+            status={bookingDetails.status}
+            servedAt={bookingDetails.servedAt}
+            removedAt={bookingDetails.removedAt}
+          />
+          <Button
+            variant="outline"
+            onClick={() => setBookingDetails(null)}
+            className="w-full mt-4"
+          >
+            Check Another Booking
+          </Button>
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-slideUp">
+        <Button
+          onClick={() => navigate("/provider/login")}
+          className="bg-teal-600 hover:bg-primary text-white px-8 py-6 rounded-lg text-lg transition-all duration-300 w-full sm:w-auto"
+        >
+          Service Provider Login
+        </Button>
+        <Button
+          onClick={() => navigate("/customer/services")}
+          variant="outline"
+          className="px-8 py-6 rounded-lg text-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300 w-full sm:w-auto"
+        >
+          Browse All Services
+        </Button>
       </div>
     </div>
-  );
-};
-
+  </div>
+</div>
+  )
+}
 export default Index;

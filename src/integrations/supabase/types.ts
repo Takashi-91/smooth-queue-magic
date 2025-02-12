@@ -43,6 +43,8 @@ export type Database = {
           reference_number: string
           service_id: number | null
           status: string
+          served_at: string | null
+          removed_at: string | null
         }
         Insert: {
           booking_status?: string
@@ -53,6 +55,8 @@ export type Database = {
           reference_number?: string
           service_id?: number | null
           status?: string
+          served_at?: string | null
+          removed_at?: string | null
         }
         Update: {
           booking_status?: string
@@ -63,6 +67,8 @@ export type Database = {
           reference_number?: string
           service_id?: number | null
           status?: string
+          served_at?: string | null
+          removed_at?: string | null
         }
         Relationships: [
           {

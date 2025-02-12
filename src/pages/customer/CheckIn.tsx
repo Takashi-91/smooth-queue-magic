@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import { useServices } from "@/hooks/useServices";
 import { QueueStatus } from "@/components/customer/QueueStatus";
 import { ServiceCard } from "@/components/customer/ServiceCard";
 import { Loader2, ArrowLeft, Copy, ArrowRight, Check } from "lucide-react";
+import { useQueuePosition } from "@/hooks/useQueuePosition";
 
 const CustomerCheckIn = () => {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const CustomerCheckIn = () => {
   const { toast } = useToast();
 
   const services = useServices(providerId);
+  const queuePosition = useQueuePosition(customerId, selectedService?.id ?? null);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
@@ -79,7 +80,6 @@ const CustomerCheckIn = () => {
             customer_name: customerName,
             service_id: selectedService.id,
             status: "waiting",
-            booking_status: "pending",
           },
         ])
         .select("*, reference_number")
@@ -98,7 +98,7 @@ const CustomerCheckIn = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to submit booking request",
+        description: "Failed to join the queue",
       });
     } finally {
       setIsSubmitting(false);
@@ -112,7 +112,7 @@ const CustomerCheckIn = () => {
           <Card>
             <CardContent className="pt-6">
               <QueueStatus 
-                position={1} 
+                position={queuePosition ?? 0}
                 selectedService={selectedService}
                 referenceNumber={referenceNumber}
               />
