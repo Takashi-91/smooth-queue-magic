@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useQueuePosition = (customerId: number | null, serviceId: number | null) => {
+export const useQueuePosition = (customerId: number | null, providerId: string | null) => {
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!customerId || !serviceId) return;
+    if (!customerId || !providerId) return;
 
     console.log('Subscribing to queue updates for customer ID:', customerId);
     
@@ -31,17 +31,27 @@ export const useQueuePosition = (customerId: number | null, serviceId: number | 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [customerId, serviceId]);
+  }, [customerId, providerId]);
 
   const updateQueuePosition = async () => {
-    if (!customerId || !serviceId) return;
+    if (!customerId || !providerId) return;
 
     try {
-      // Get all active queue items for this service
+      // First get the service provider's services
+      const { data: services } = await supabase
+        .from('services')
+        .select('id')
+        .eq('provider_id', providerId);
+
+      if (!services) return;
+
+      const serviceIds = services.map(service => service.id);
+
+      // Get all active queue items for this provider's services
       const { data: queueItems } = await supabase
         .from('queue')
         .select('*')
-        .eq('service_id', serviceId)
+        .in('service_id', serviceIds)
         .eq('status', 'waiting')
         .is('served_at', null)
         .is('removed_at', null)

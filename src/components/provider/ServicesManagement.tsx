@@ -175,8 +175,8 @@ const ServicesManagement = ({ userId, services, setServices }: ServicesManagemen
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full">
-              <Plus className="mr-2" />
+            <Button type="submit" className="bg-teal-600 hover:bg-teal-700 w-full">
+              <Plus className="h-4 w-4 mr-2" />
               Add Service
             </Button>
           </form>
@@ -234,16 +234,18 @@ const ServicesManagement = ({ userId, services, setServices }: ServicesManagemen
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        size="sm"
+                        variant="outline"
                         onClick={() => setEditingService(service)}
+                        className="text-teal-600 border-teal-600 hover:bg-teal-50"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        size="sm"
+                        variant="destructive"
                         onClick={() => handleDeleteService(service.id)}
+                        className="bg-red-600 hover:bg-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

@@ -19,14 +19,14 @@ export const QueueStatus = ({
 }: QueueStatusProps) => {
   const getPositionText = (pos: number) => {
     if (pos <= 0) return "Position not found";
-    if (pos === 1) return "You're next!";
-    return `You are number ${pos} in line`;
+    if (pos === 1) return `You're in position${pos} in line for this provider!`;
+    return `You are number ${pos} in this provider's queue`;
   };
 
   const getPeopleAheadText = (pos: number) => {
     if (pos <= 1) return null;
     const peopleAhead = pos - 1;
-    return `(${peopleAhead} ${peopleAhead === 1 ? 'person' : 'people'} ahead of you)`;
+    return `(${peopleAhead} ${peopleAhead === 1 ? 'person' : 'people'} ahead of you for this provider)`;
   };
 
   const getStatusMessage = () => {

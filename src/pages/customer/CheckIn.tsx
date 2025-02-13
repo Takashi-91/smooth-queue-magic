@@ -31,7 +31,10 @@ const CustomerCheckIn = () => {
   const { toast } = useToast();
 
   const services = useServices(providerId);
-  const queuePosition = useQueuePosition(customerId, selectedService?.id ?? null);
+  const queuePosition = useQueuePosition(
+    customerId, 
+    selectedService?.provider_id ?? providerId ?? null
+  );
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
@@ -93,6 +96,11 @@ const CustomerCheckIn = () => {
         title: "Success",
         description: "You've been added to the queue",
       });
+
+      if (window.opener || window.parent) {
+        const target = window.opener || window.parent;
+        target.postMessage('customerAdded', window.location.origin);
+      }
     } catch (error: any) {
       console.error("Error submitting booking:", error);
       toast({
