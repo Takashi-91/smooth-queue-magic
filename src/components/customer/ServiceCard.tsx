@@ -1,7 +1,7 @@
-
 import { Service } from "@/types/queue";
 import { Clock, CreditCard, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { mixpanel } from "@/lib/mixpanel";
 
 interface ServiceCardProps {
   service: Service;
@@ -10,10 +10,23 @@ interface ServiceCardProps {
 }
 
 export const ServiceCard = ({ service, isSelected, onSelect }: ServiceCardProps) => {
+  const handleServiceSelect = (service: Service) => {
+    // Track service selection
+    mixpanel.track("Booking Started", {
+      service_name: service.name,
+      service_id: service.id,
+      service_provider: service.provider?.name,
+      service_price: service.price,
+      service_duration: service.duration
+    });
+    
+    onSelect(service);
+  };
+
   return (
     <button
       type="button"
-      onClick={() => onSelect(service)}
+      onClick={() => handleServiceSelect(service)}
       className={cn(
         "w-full p-6 text-left border rounded-xl transition-all duration-200",
         "hover:shadow-lg hover:scale-[1.02] hover:border-primary/50",

@@ -127,42 +127,39 @@ const BookingRequests = ({ queueItems, onQueueUpdate }: { queueItems: QueueItem[
         <CardDescription>Manage customers currently waiting</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {waitingCustomers.length === 0 ? (
-            <p className="text-center text-muted-foreground">No customers waiting</p>
+        <div className="space-y-2 sm:space-y-3">
+          {queueItems.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No customers in queue
+            </p>
           ) : (
-            waitingCustomers.map((item, index) => (
+            queueItems.map((item, index) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 border rounded-lg gap-2 sm:gap-4"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="w-full sm:w-auto">
+                  <div className="flex items-center justify-between sm:justify-start gap-2 mb-1">
                     <h4 className="font-medium">{item.customer_name}</h4>
-                    <Badge variant="secondary">waiting</Badge>
+                    <Badge>{item.status}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Service: {item.service.name} ({item.service.duration} mins)
+                    Service: {item.service.name}
                   </p>
-                  <div className="flex gap-4 mt-1">
-                    <p className="text-xs text-muted-foreground">
-                      Ref: {item.reference_number}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Joined: {formatTime(item.created_at)}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center">
+                  <div className="flex flex-col xs:flex-row gap-2 xs:gap-4 mt-1 text-xs text-muted-foreground">
+                    <p>Ref: {item.reference_number}</p>
+                    <p className="flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
                       Est. Start: {calculateEstimatedTime(index)}
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleServeCustomer(item.id)}
-                    className="text-teal-600 border-teal-600 hover:bg-teal-50"
+                    className="flex-1 sm:flex-none text-teal-600 border-teal-600 hover:bg-teal-50"
                   >
                     <Check className="h-4 w-4 mr-1" />
                     Serve
@@ -171,7 +168,7 @@ const BookingRequests = ({ queueItems, onQueueUpdate }: { queueItems: QueueItem[
                     size="sm"
                     variant="destructive"
                     onClick={() => handleRemoveCustomer(item.id)}
-                    className="bg-red-600 hover:bg-red-700"
+                    className="flex-1 sm:flex-none bg-red-600 hover:bg-red-700"
                   >
                     <X className="h-4 w-4 mr-1" />
                     Remove

@@ -4,10 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { UserPlus, X } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface AddCustomerModalProps {
@@ -38,16 +37,11 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
           Add Customer
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl h-[80vh]">
-        <DialogHeader className="flex flex-row items-center justify-between">
+      <DialogContent className="max-w-3xl h-[70vh] p-0 pt-4">
+        <DialogHeader className="px-6 mb-2">
           <DialogTitle>Add New Customer</DialogTitle>
-          <DialogClose asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogClose>
         </DialogHeader>
-        <div className="flex-1 h-full">
+        <div className="flex-1">
           <iframe
             src={`/customer/services/${providerId}`}
             className="w-full h-full border-none"

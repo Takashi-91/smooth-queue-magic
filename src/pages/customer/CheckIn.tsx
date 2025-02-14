@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { QueueStatus } from "@/components/customer/QueueStatus";
 import { ServiceCard } from "@/components/customer/ServiceCard";
 import { Loader2, ArrowLeft, Copy, ArrowRight, Check } from "lucide-react";
 import { useQueuePosition } from "@/hooks/useQueuePosition";
+import { mixpanel } from "@/lib/mixpanel";
 
 const CustomerCheckIn = () => {
   const navigate = useNavigate();
@@ -35,6 +36,12 @@ const CustomerCheckIn = () => {
     customerId, 
     selectedService?.provider_id ?? providerId ?? null
   );
+
+  useEffect(() => {
+    if (step === "enter-details") {
+      mixpanel.track("Booking Form Opened");
+    }
+  }, [step]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
@@ -100,6 +107,14 @@ const CustomerCheckIn = () => {
       if (window.opener || window.parent) {
         const target = window.opener || window.parent;
         target.postMessage('customerAdded', window.location.origin);
+      }
+
+      if (data) {
+        mixpanel.track("Booking Completed", {
+          customer_name: customerName,
+          service_name: selectedService?.name,
+          reference_number: data.reference_number
+        });
       }
     } catch (error: any) {
       console.error("Error submitting booking:", error);
