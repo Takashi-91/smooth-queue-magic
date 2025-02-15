@@ -18,6 +18,7 @@ import {
 import { startOfToday, startOfMonth, endOfMonth, isToday } from 'date-fns';
 import { format } from 'date-fns';
 import AddCustomerModal from "@/components/provider/AddCustomerModal";
+import { mixpanel } from "@/lib/mixpanel";
 
 const ProviderDashboard = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -35,6 +36,10 @@ const ProviderDashboard = () => {
       fetchServices();
       fetchQueueItems();
       subscribeToQueueUpdates();
+      mixpanel.track("Dashboard_Loaded", {
+        provider_id: userId,
+        timestamp: new Date().toISOString()
+      });
     }
   }, [userId]);
 
@@ -137,14 +142,28 @@ const ProviderDashboard = () => {
   const handleCopyCheckInLink = async () => {
     if (!userId) return;
     
+    mixpanel.track("Copy_Link_Clicked", {
+      provider_id: userId,
+      timestamp: new Date().toISOString()
+    });
+    
     const checkInUrl = `${window.location.origin}/customer/services/${userId}`;
     try {
       await navigator.clipboard.writeText(checkInUrl);
+      mixpanel.track("Copy_Link_Success", {
+        provider_id: userId,
+        timestamp: new Date().toISOString()
+      });
       toast({
         title: "Success",
         description: "Check-in link copied to clipboard",
       });
     } catch (error) {
+      mixpanel.track("Copy_Link_Failed", {
+        provider_id: userId,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
       console.error('Failed to copy link:', error);
       toast({
         variant: "destructive",

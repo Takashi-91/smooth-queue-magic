@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { mixpanel } from "@/lib/mixpanel";
 
 interface QueueHistoryModalProps {
   historyItems: QueueItem[];
@@ -29,6 +30,28 @@ interface QueueHistoryModalProps {
 const QueueHistoryModal = ({ historyItems }: QueueHistoryModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [filterType, setFilterType] = useState<'served' | 'removed' | 'all'>('all');
+
+  useEffect(() => {
+    mixpanel.track("History_Viewed", {
+      timestamp: new Date().toISOString()
+    });
+  }, []);
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    mixpanel.track("History_Date_Selected", {
+      selected_date: date?.toISOString(),
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handleFilterChange = (value: typeof filterType) => {
+    setFilterType(value);
+    mixpanel.track("History_Filter_Changed", {
+      filter_type: value,
+      timestamp: new Date().toISOString()
+    });
+  };
 
   const filteredHistory = historyItems.filter(item => {
     const itemDate = new Date(item.served_at || item.removed_at || item.created_at);
@@ -85,7 +108,7 @@ const QueueHistoryModal = ({ historyItems }: QueueHistoryModalProps) => {
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={handleDateSelect}
               className="rounded-md border w-full sm:w-auto"
               disabled={(date) => date > new Date()}
             />
@@ -93,7 +116,7 @@ const QueueHistoryModal = ({ historyItems }: QueueHistoryModalProps) => {
           <div className="w-full sm:w-[140px]">
             <Select
               value={filterType}
-              onValueChange={(value) => setFilterType(value as typeof filterType)}
+              onValueChange={handleFilterChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by status" />

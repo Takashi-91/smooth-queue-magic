@@ -11,6 +11,7 @@ import {
 import { Check, X, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { addMinutes, format } from "date-fns";
+import { mixpanel } from "@/lib/mixpanel";
 
 interface QueueItem {
   id: number;
@@ -60,6 +61,13 @@ const BookingRequests = ({ queueItems, onQueueUpdate }: { queueItems: QueueItem[
   };
 
   const handleServeCustomer = async (queueItemId: number) => {
+    const startTime = new Date().getTime();
+    
+    mixpanel.track("Serve_Customer_Started", {
+      queue_item_id: queueItemId,
+      timestamp: new Date().toISOString()
+    });
+
     try {
       const { error } = await supabase
         .from('queue')
@@ -71,12 +79,25 @@ const BookingRequests = ({ queueItems, onQueueUpdate }: { queueItems: QueueItem[
 
       if (error) throw error;
 
+      const duration = new Date().getTime() - startTime;
+      
+      mixpanel.track("Serve_Customer_Success", {
+        queue_item_id: queueItemId,
+        duration_ms: duration,
+        timestamp: new Date().toISOString()
+      });
+
       toast({
         title: "Success",
         description: "Customer has been served",
       });
       onQueueUpdate();
     } catch (error) {
+      mixpanel.track("Serve_Customer_Failed", {
+        queue_item_id: queueItemId,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
       console.error('Error serving customer:', error);
       toast({
         variant: "destructive",
@@ -87,6 +108,13 @@ const BookingRequests = ({ queueItems, onQueueUpdate }: { queueItems: QueueItem[
   };
 
   const handleRemoveCustomer = async (queueItemId: number) => {
+    const startTime = new Date().getTime();
+    
+    mixpanel.track("Remove_Customer_Started", {
+      queue_item_id: queueItemId,
+      timestamp: new Date().toISOString()
+    });
+
     try {
       const { error } = await supabase
         .from('queue')
@@ -98,12 +126,25 @@ const BookingRequests = ({ queueItems, onQueueUpdate }: { queueItems: QueueItem[
 
       if (error) throw error;
 
+      const duration = new Date().getTime() - startTime;
+      
+      mixpanel.track("Remove_Customer_Success", {
+        queue_item_id: queueItemId,
+        duration_ms: duration,
+        timestamp: new Date().toISOString()
+      });
+
       toast({
         title: "Success",
         description: "Customer has been removed from queue",
       });
       onQueueUpdate();
     } catch (error) {
+      mixpanel.track("Remove_Customer_Failed", {
+        queue_item_id: queueItemId,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
       console.error('Error removing customer:', error);
       toast({
         variant: "destructive",

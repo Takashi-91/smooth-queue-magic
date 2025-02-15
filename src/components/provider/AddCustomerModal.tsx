@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
+import { mixpanel } from "@/lib/mixpanel";
 
 interface AddCustomerModalProps {
   providerId: string;
@@ -16,10 +17,29 @@ interface AddCustomerModalProps {
 
 const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [modalOpenTime, setModalOpenTime] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setModalOpenTime(new Date().getTime());
+      mixpanel.track("Add_Customer_Modal_Opened", {
+        provider_id: providerId,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [isOpen, providerId]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data === 'customerAdded') {
+        const duration = modalOpenTime ? new Date().getTime() - modalOpenTime : null;
+        
+        mixpanel.track("Customer_Added_Success", {
+          provider_id: providerId,
+          duration_ms: duration,
+          timestamp: new Date().toISOString()
+        });
+
         setIsOpen(false);
         onCustomerAdded?.();
       }
@@ -27,7 +47,7 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onCustomerAdded]);
+  }, [onCustomerAdded, providerId, modalOpenTime]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
