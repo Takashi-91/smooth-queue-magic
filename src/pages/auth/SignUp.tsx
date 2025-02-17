@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -21,17 +22,31 @@ const SignUp = () => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/provider/login`,
+          data: {
+            role: 'provider'
+          }
+        }
       });
 
       if (error) throw error;
 
-      if (data) {
+      if (data?.user?.identities?.length === 0) {
         toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
+          variant: "destructive",
+          title: "Error",
+          description: "An account with this email already exists.",
         });
-        navigate("/provider/login");
+        return;
       }
+
+      toast({
+        title: "Success!",
+        description: "Please check your email to verify your account before logging in.",
+      });
+      navigate("/provider/login");
+      
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -59,6 +74,7 @@ const SignUp = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full"
                 required
+                disabled={loading}
               />
               <Input
                 type="password"
@@ -68,21 +84,30 @@ const SignUp = () => {
                 className="w-full"
                 required
                 minLength={6}
+                disabled={loading}
               />
             </div>
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-teal-600 hover:bg-teal-700"
               disabled={loading}
             >
-              {loading ? "Creating account..." : "Sign Up"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Button
                 variant="link"
-                className="p-0 h-auto"
+                className="p-0 h-auto text-teal-600"
                 onClick={() => navigate("/provider/login")}
+                disabled={loading}
               >
                 Log in
               </Button>

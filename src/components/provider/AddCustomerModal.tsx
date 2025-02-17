@@ -21,22 +21,48 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
 
   useEffect(() => {
     if (isOpen) {
-      setModalOpenTime(new Date().getTime());
+      const openTime = new Date().getTime();
+      setModalOpenTime(openTime);
+      
+      // Track modal opening
       mixpanel.track("Add_Customer_Modal_Opened", {
         provider_id: providerId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date(openTime).toISOString(),
+        source: "provider_dashboard"
       });
+    } else {
+      // Track modal closing without confirmation
+      if (modalOpenTime) {
+        const duration = new Date().getTime() - modalOpenTime;
+        mixpanel.track("Add_Customer_Modal_Closed", {
+          provider_id: providerId,
+          duration_ms: duration,
+          completed: false,
+          timestamp: new Date().toISOString()
+        });
+      }
+      setModalOpenTime(null);
     }
   }, [isOpen, providerId]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data === 'customerAdded') {
-        const duration = modalOpenTime ? new Date().getTime() - modalOpenTime : null;
+      if (event.data === 'customerAdded' && modalOpenTime) {
+        const duration = new Date().getTime() - modalOpenTime;
         
-        mixpanel.track("Customer_Added_Success", {
+        // Track successful customer addition
+        mixpanel.track("Add_Customer_Confirmed", {
           provider_id: providerId,
           duration_ms: duration,
+          timestamp: new Date().toISOString(),
+          completed: true
+        });
+
+        // Track modal completion
+        mixpanel.track("Add_Customer_Modal_Closed", {
+          provider_id: providerId,
+          duration_ms: duration,
+          completed: true,
           timestamp: new Date().toISOString()
         });
 
@@ -49,10 +75,22 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
     return () => window.removeEventListener('message', handleMessage);
   }, [onCustomerAdded, providerId, modalOpenTime]);
 
+  const handleOpenModal = () => {
+    setIsOpen(true);
+    mixpanel.track("Add_Customer_Button_Clicked", {
+      provider_id: providerId,
+      timestamp: new Date().toISOString()
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-50">
+        <Button 
+          variant="outline" 
+          className="border-teal-600 text-teal-600 hover:bg-teal-50"
+          onClick={handleOpenModal}
+        >
           <UserPlus className="h-4 w-4 mr-2" />
           Add Customer
         </Button>
