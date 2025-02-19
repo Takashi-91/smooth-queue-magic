@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { mixpanel } from "@/lib/mixpanel";
+import { getUTMParams } from '@/lib/utm';
 
 interface AddCustomerModalProps {
   providerId: string;
@@ -24,21 +25,20 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
       const openTime = new Date().getTime();
       setModalOpenTime(openTime);
       
-      // Track modal opening
+      // Track modal opening with UTM params
       mixpanel.track("Add_Customer_Modal_Opened", {
         provider_id: providerId,
-        timestamp: new Date(openTime).toISOString(),
-        source: "provider_dashboard"
+        source: "provider_dashboard",
+        modal_open_time: openTime,
       });
     } else {
-      // Track modal closing without confirmation
+      // Track modal closing with UTM params
       if (modalOpenTime) {
         const duration = new Date().getTime() - modalOpenTime;
         mixpanel.track("Add_Customer_Modal_Closed", {
           provider_id: providerId,
           duration_ms: duration,
           completed: false,
-          timestamp: new Date().toISOString()
         });
       }
       setModalOpenTime(null);
@@ -50,20 +50,11 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
       if (event.data === 'customerAdded' && modalOpenTime) {
         const duration = new Date().getTime() - modalOpenTime;
         
-        // Track successful customer addition
+        // Track successful customer addition with UTM params
         mixpanel.track("Add_Customer_Confirmed", {
           provider_id: providerId,
           duration_ms: duration,
-          timestamp: new Date().toISOString(),
-          completed: true
-        });
-
-        // Track modal completion
-        mixpanel.track("Add_Customer_Modal_Closed", {
-          provider_id: providerId,
-          duration_ms: duration,
           completed: true,
-          timestamp: new Date().toISOString()
         });
 
         setIsOpen(false);
@@ -79,7 +70,6 @@ const AddCustomerModal = ({ providerId, onCustomerAdded }: AddCustomerModalProps
     setIsOpen(true);
     mixpanel.track("Add_Customer_Button_Clicked", {
       provider_id: providerId,
-      timestamp: new Date().toISOString()
     });
   };
 

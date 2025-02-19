@@ -25,6 +25,8 @@ import { mixpanel } from "@/lib/mixpanel";
 
 interface QueueHistoryModalProps {
   historyItems: QueueItem[];
+  removed_at:string;
+  served_at:string;
 }
 
 const QueueHistoryModal = ({ historyItems }: QueueHistoryModalProps) => {

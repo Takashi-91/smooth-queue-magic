@@ -1,3 +1,5 @@
+import { getUTMParams, UTMParams } from './utm';
+
 declare global {
   interface Window {
     mixpanel: any;
@@ -7,7 +9,13 @@ declare global {
 export const mixpanel = {
   track: (event_name: string, properties?: any) => {
     if (window.mixpanel) {
-      window.mixpanel.track(event_name, properties);
+      const utmParams = getUTMParams();
+      const enrichedProperties = {
+        ...properties,
+        ...utmParams,
+        timestamp: new Date().toISOString(),
+      };
+      window.mixpanel.track(event_name, enrichedProperties);
     }
   },
   identify: (id: string) => {
